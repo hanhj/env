@@ -2380,6 +2380,232 @@ app目录放置应用程序，lib放置一些库，tools放置一些工具程序
 	修改LD_LIBRARY_PATH环境变量，指向so所在目录
 	或者在 /etc/ld.so.conf.d/中添加你想要的路径
 	静态库：ar rcs a.a a.o
+
+###gdb:
+- 用途:调试程序，
+	需要在编译和连接时加上-g选项。
+- 调用格式:  
+
+		gdb [options] file
+	　　gdb PID exe_id  运行时调试
+- 选项： 
+	- --symbols=SYMFILE
+		从指定文件中读取符号表。
+	- --se=FILE 
+		从指定文件中读取符号表信息，并把他用在可执行文件中。 
+	- --core=COREFILE 
+		调试时core dump的core文件。 
+	- --directory=DIR
+		加入一个源文件的搜索路径。默认搜索路径是环境变量中PATH所定义的路径
+
+- 调试时命令：  
+	- 在gdb中输入命令，支持tab补齐。
+	- 设置输入参数：set args
+
+			set	args 1 2 3 ：设置输入参数1 2 3
+	- 显示输入参数： show args  
+	- 装入调试程序：file xx  
+	- 显示源程序：list 简写l  
+
+			list		显示当前行范围前后的源程序  
+			list line	显示当前文件的line范围前后的源程序  
+			list -line	向前显示  
+			list +line	向后显示  
+			list first，last  
+			ist file:line	显示文件file的line行  
+			set listsize count设置一次显示的行
+	- 编辑代码	edit 简写ed   
+		需要设置EDITOR环境变量，如果没有设置默认是/usr/bin/ed\		
+	- 其他一些相关命令：  
+
+			make,编译代码  
+			cd 改变路径  
+			pwd 显示路径  
+			shell 执行shell，需要设置SHELL环境变量，如果没有设置默认是/usr/bin/sh
+	- 显示信息：
+			
+			info ，简写i。 
+			info xx	;xx是定义的一些信息体。
+				xx包括：
+				break	断点信息  
+				locals	局部变量  
+				args	输入参数  
+				frame	调用栈  
+				...  
+	- 显示调试程序（debuger）的信息: 
+		
+			show xx ；xx是定义的一些调试程序信息。  
+				xx包括：
+				ada -- Generic command for showing Ada-specific settings  
+				annotate	注释的级别。  
+				args		显示参数  
+				...  
+	- 显示数据：  
+		- 显示变量：print，	简写p
+
+				print/format  var
+				format表示显示格式。包括：
+				x 按十六进制格式显示变量。 
+				d 按十进制格式显示变量。 
+				u 按十六进制格式显示无符号整型。 
+				o 按八进制格式显示变量。 
+				t 按二进制格式显示变量。 
+				a 按十六进制格式显示变量。
+				c 按字符格式显示变量。 
+				f 按浮点数格式显示变量。 
+		- 特殊变量：  
+
+				`$pc`：程序计数器，
+				`$fp`当前堆栈指针,
+				`$sp`栈指针,
+				`$ps`当前处理器状态
+		- 显示数组：
+
+				print base@length
+				base是数组的起始地址名称，length是显示的长度
+		- 内存：x 
+		
+				x/nfh addr 
+				n 	is numbers will show
+				f 	数据显示形式，
+					x表示16进制，
+					o表示8进制，
+					d表示十进制，
+					c表示字符，
+					f表示浮点，
+					s表示字符串
+				h	表示每个数字的宽度，默认是word
+					b表示1个byte，		(byte)
+					h表示半个字2个byte，(short)
+					w表示一个字4个byte，(word)
+					g表示8个byte		(longlong)
+		- 自动显示变量：display expr  
+			每当到达断点时自动显示变量  
+			`display /i $pc` 会在断点时显示机器代码和源代码。  
+			`undisplay dnums`  
+			`delete display dnums`  
+		- 显示数组或变量类型：
+
+				 whatis 变量， 
+				 ptype 变量,
+			 ptype比whatis显示更多信息。
+
+	- 设置变量：set
+
+			set 变量=value
+			set args 1 2 3
+	- 执行：run,next,continue  
+
+			run 全速运行，			简写r
+			next[count] 不进入的单步执行，	简写n
+			step[count] 进入的单步执行，	简写s
+			continue[count] 继续执行，		简写c
+			count是执行的步数，如果不带count默认是执行1步。
+
+	- 函数调用：call 
+
+			call function-name
+			call fun（1,3）
+	- 程序暂停：break,watch,handle  
+		- 断点：break 简写b  
+			- 设置断点   
+				设置行断点:		b line  
+		 		设置文件的断点	b file:line   
+		 		设置函数断点	b function  
+				设置条件断点	b line  if contion  
+
+					b 20 if count==100
+					对于条件的维护：condition 简写cond
+					对于已经设置的断点，可以添加删除，忽略条件。
+					添加条件：	condition bnum expr
+					消除条件： 	condition bnum 
+					忽略条件：	ignore bnum count，表示忽略断点count次
+					bnum是已经存在的断点号。
+			- 查看断点 info break
+			-  删除断点：delete bnum，简写d，
+				
+					d 2
+					如果不带bnum则删除所有断点。
+			- 禁止断点：disable bnum
+			- 允许断点：enable bnum	
+			- 设置断点暂停后的动作：commands bnum  
+				由commands 。。。 end组成  
+				如果不带bnum，则以最近的一个断点为断点。
+					b foo if count==100	设置一个条件断点  
+				 	commands 设置断点后的命令。在gdb中敲commands后回车，gdb会出现>的提示符，此时可以输入命令。以end为结束。  
+			 		printf “count==100”  
+	 				continue  
+	 			end  
+		 		使用commands可以方便自动化测试。
+					
+		- 观察点：watch  
+			设置观察点后，当观察点数据发生变化，可以自动停下来。
+
+				设置watch：watch var
+				查看watch ：info watch
+				删除watch ：delete watch watch_number
+
+		- 捕捉信号：handle 
+
+				handle handle-name control
+			handle-name：
+					
+				SIGPIPE，SIGINT。。。
+			control:
+
+				 nostop：不停止程序，也不发送给程序
+				 stop:停止程序
+				 print：显示一条信息
+				 noprint：
+				 pass：将信号发送给程序
+				 nopass：停止程序，但不发送信号给程序
+		 
+		 - catch event，
+			event可以是：
+
+		 		throw
+				 	catch
+				exec
+				fork
+			 	vfork
+			 	load/unload
+		 	
+	- 栈：frame 简写f  
+		 bt	显示当前调用栈  
+		 f	显示当前代码  
+		 info f 显示栈信息,寄存器信息		
+	
+	 [gdb help](gdb_help.html)
+
+- gdb的移植：
+
+	为了在目标板上运行gdb，可以做以下移植工作：  
+
+	1. 下载代码，从gnu网站上下载gdb，和ncurses代码  
+
+			www.gnu.org/software/software.html
+	2. 编译ncurses  
+		ncurses是一个文本的gui界面库
+
+			./configure --host=your cross compile --prefix=where you want install --without-ada --enable-termcap --with-shared
+			./configure --host=arm-none-linux --prefix=/home/bin --without-ada --enable-termcap --with-shared
+		需要注意的是：cross compile 就是你的交叉编译器的前缀，在编译之间要设置环境变量path路径，使得能够找到该交叉编译器。
+
+			make 
+			make install
+	3. 编译gdb
+
+			./configure --host=your cross compile --prefix=where you want to install --without-x --disable-gdbtk --disable-tui --without-included-regex --without-included-gettext CPPFLAGS=your ncurese include  LDFLAGS=your ncurese lib dir
+			./configure --host=arm-none-linux --prefix=/home/bin --without-x --disable-gdbtk --disable-tui --without-included-regex --without-included-gettext CPPFLAGS=-I/home/bin/include  LDFLAGS=/home/bin/lib
+	编译好后，gdb就在gdb目录下，可以拷贝到目标板运行，同时也要拷贝ncurses的库。gdb调试的时候，需要源文件，如果是简单的程序，可以直接拷贝到目标板，如果程序较大，可以将计算机挂载到目标板上进行调试。
+
+			mount -t smbfs your ip/dir mount dir -o dir_mod=xxx,file_mode=xxx,noserverino,uid=xxx,gid=xxx
+			mount -t smbfs //192.168.15.23/share_doc /mnt/tmp/ -o dir_mod=0777,file_mode=0777 ,noserverino,uid=1001,gid=1001
+	这样就可以直接在目标板上调试保存在计算机上的程序了，而不用拷贝。
+
+ddd是一个基于gdb的图形界面环境，  
+gdbtui是一个基于gdb的文本界面环境。
+
 ### 关于条件组合的总结：
 逻辑与逻辑或的关系在多个地方都会用到，但是有些区别。
 假设a=1,b=3
