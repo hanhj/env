@@ -2374,12 +2374,34 @@ app目录放置应用程序，lib放置一些库，tools放置一些工具程序
 	...
 	
 ###编写so库：
+	创建动态库so
 	gcc -fPIC -c -g -Wall a.c
 	gcc -shared -o a.so a.o
-	使用的时候：
-	修改LD_LIBRARY_PATH环境变量，指向so所在目录
-	或者在 /etc/ld.so.conf.d/中添加你想要的路径
+	or 
+	gcc -fPIC -shared -o liba.so a.c
+
+	使用so:
+	1)静态方法
+		gcc -la -L. main.o -o test   
+			-la 表示连接liba.so库
+			-L. 表示当前路径 
+			使用的时候：修改LD_LIBRARY_PATH环境变量，指向so所在目录
+			或者在 /etc/ld.so.conf.d/中添加你想要的路径
+	2)动态方法:
+		两个函数:dlopen,dlsym
+		比如在so中定义了一个 int sort(int *arrar,int len);函数 
+
+		在main中
+			int array[1,2,3];
+			int (*sort)(int *,int len);
+			void *handle = dlopen("./libsort.so",RTLD_LAZY);
+			if(handle!=NULL){
+				sort = dlsym(handle,"sort");
+				sort(array,3);
+			}
+
 	静态库：ar rcs a.a a.o
+
 ### 关于条件组合的总结：
 逻辑与逻辑或的关系在多个地方都会用到，但是有些区别。
 假设a=1,b=3
