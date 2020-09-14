@@ -112,6 +112,7 @@ git 下载：sudo apt-get install git
 		查看当前有多少个stash，与HEAD类似，多个stash的表示为：
 	  stash@{数字}数字越大，表示越久远。如果不带stash记录号默认就弹出最近的那个记录。
 	git stash pop [stash 记录号]：恢复保存的工作现场，此命令主要用于临时的改动。
+	git stash drop [stash ]:删除stash
 标签：
 	git tag 
 		-a 标签名 -m "标签注释"  提交纪录号：用于对某个提交记录打上标签。
