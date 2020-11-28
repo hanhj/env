@@ -75,6 +75,8 @@ git 下载：sudo apt-get install git
 		删除对某个文件的跟踪，--cache 用于保留物理文件，避免rm的时候删除物理文件
 	git commit -m "提交的说明" ：
 		提交改动
+		git commit --amend
+		用于修改刚刚提交的commit
 	git status ：
 		显示提交状态，显示没有提交的改动
 	git log ：
